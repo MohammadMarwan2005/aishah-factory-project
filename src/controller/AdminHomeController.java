@@ -39,10 +39,8 @@ public class AdminHomeController extends JFrame {
         panel.setBackground(new Color(236, 240, 241));
 
         // Dashboard cards
-        panel.add(createCard("Production Lines", "Manage production lines and tasks", new Color(231, 76, 60), null));
-        panel.add(createCard("Item Management", "Manage inventory items", new Color(46, 204, 113), this::openItemController));
-        panel.add(createCard("Task Assignment", "Assign and track production tasks", new Color(52, 152, 219), null));
-        panel.add(createCard("Quality Control", "Review and approve products", new Color(241, 196, 15), null));
+        panel.add(createCard("Manage Items", "Manage inventory items", new Color(46, 204, 113), this::openItemController));
+        panel.add(createCard("Manage Products", "Manage products and their tasks", new Color(155, 89, 182), this::openProductController));
 
         return panel;
     }
@@ -100,6 +98,21 @@ public class AdminHomeController extends JFrame {
         ItemController itemController = new ItemController();
         itemController.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         itemController.setVisible(true);
+    }
+
+    private void openTaskController() {
+        TaskController taskController = new TaskController();
+        taskController.setVisible(true);
+    }
+
+    private void openProductLineController() {
+        ProductLineController productLineController = new ProductLineController();
+        productLineController.setVisible(true);
+    }
+
+    private void openProductController() {
+        ProductController productController = new ProductController();
+        productController.setVisible(true);
     }
 
     private JPanel createStatusPanel() {

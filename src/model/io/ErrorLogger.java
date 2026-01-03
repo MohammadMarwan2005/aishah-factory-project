@@ -13,8 +13,7 @@ public class ErrorLogger {
 
     public static void logError(String errorMessage) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(ERROR_FILE, true))) {
-            String timestamp = LocalDateTime.now().format(FORMATTER);
-            writer.println("[" + timestamp + "] " + errorMessage);
+            writer.println(errorMessage);
         } catch (IOException e) {
             System.err.println("Failed to write to error log: " + e.getMessage());
         }
@@ -22,8 +21,7 @@ public class ErrorLogger {
 
     public static void logError(Exception exception) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(ERROR_FILE, true))) {
-            String timestamp = LocalDateTime.now().format(FORMATTER);
-            writer.println("[" + timestamp + "] " + exception.getClass().getName() + ": " + exception.getMessage());
+            writer.println(exception.getClass().getName() + ": " + exception.getMessage());
         } catch (IOException e) {
             System.err.println("Failed to write to error log: " + e.getMessage());
         }

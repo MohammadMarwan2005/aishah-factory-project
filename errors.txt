@@ -1,2 +1,4 @@
-[2026-01-03 07:00:34] Failed login attempt for username: manageer
-[2026-01-03 07:00:36] Failed login attempt for username: manageer
+Failed login attempt for username: admin
+Failed login attempt for username: admin
+java.lang.NumberFormatException: For input string: "null"
+java.time.format.DateTimeParseException: Text '9988932' could not be parsed at index 0

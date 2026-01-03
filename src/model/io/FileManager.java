@@ -39,7 +39,8 @@ public class FileManager {
         for (File file : allFiles) {
             String name = file.getName();
 
-            if (name.startsWith(prefix) && name.endsWith(".dat")) {
+            // Use prefix + "_" to avoid matching similar prefixes (e.g., Product vs ProductLine)
+            if (name.startsWith(prefix + "_") && name.endsWith(".dat")) {
                 try {
                     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                     T obj = (T) ois.readObject();
@@ -72,7 +73,8 @@ public class FileManager {
         for (File file : allFiles) {
             String name = file.getName(); // ex: Item_5.dat
 
-            if (name.startsWith(prefix) && name.endsWith(".dat")) {
+            // Use prefix + "_" to avoid matching similar prefixes (e.g., Product vs ProductLine)
+            if (name.startsWith(prefix + "_") && name.endsWith(".dat")) {
                 // Extract the ID from filename: Item_5.dat -> 5
                 String idPart = name.substring(prefix.length() + 1, name.length() - 4);
                 try {

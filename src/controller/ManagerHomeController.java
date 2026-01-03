@@ -39,10 +39,10 @@ public class ManagerHomeController extends JFrame {
         panel.setBackground(new Color(236, 240, 241));
 
         // Dashboard cards
-        panel.add(createCard("View Reports", "Generate and view production reports", new Color(52, 152, 219), null));
         panel.add(createCard("Manage Items", "Add, edit, or remove inventory items", new Color(46, 204, 113), this::openItemController));
-        panel.add(createCard("Production Overview", "Monitor production status", new Color(155, 89, 182), null));
-        panel.add(createCard("Settings", "System configuration", new Color(241, 196, 15), null));
+        panel.add(createCard("Manage Product", "Manage products and their tasks", new Color(155, 89, 182), this::openProductController));
+        panel.add(createCard("Manage Tasks", "Add, edit, or remove tasks", new Color(241, 196, 15), this::openTaskController));
+        panel.add(createCard("Production Lines", "Manage production lines", new Color(52, 152, 219), this::openProductLineController));
 
         return panel;
     }
@@ -100,6 +100,21 @@ public class ManagerHomeController extends JFrame {
         ItemController itemController = new ItemController();
         itemController.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         itemController.setVisible(true);
+    }
+
+    private void openProductController() {
+        ProductController productController = new ProductController();
+        productController.setVisible(true);
+    }
+
+    private void openTaskController() {
+        TaskController taskController = new TaskController();
+        taskController.setVisible(true);
+    }
+
+    private void openProductLineController() {
+        ProductLineController productLineController = new ProductLineController();
+        productLineController.setVisible(true);
     }
 
     private JPanel createStatusPanel() {
