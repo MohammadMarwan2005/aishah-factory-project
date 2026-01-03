@@ -1,6 +1,7 @@
 package controller;
 
 import model.inventroy.ItemInventory;
+import model.io.ErrorLogger;
 import model.structure.Category;
 import model.structure.Item;
 
@@ -253,8 +254,10 @@ public class ItemController extends JFrame {
             statusLabel.setText("Item added: " + newItem.getName() + " (ID: " + newItem.getId() + ")");
 
         } catch (NumberFormatException e) {
+            ErrorLogger.logError(e);
             statusLabel.setText("Error: Please enter valid numbers");
         } catch (IOException e) {
+            ErrorLogger.logError(e);
             statusLabel.setText("Error saving item: " + e.getMessage());
         }
     }
@@ -275,6 +278,7 @@ public class ItemController extends JFrame {
             statusLabel.setText("Item deleted: " + item.getName());
 
         } catch (IOException e) {
+            ErrorLogger.logError(e);
             statusLabel.setText("Error deleting item: " + e.getMessage());
         }
     }

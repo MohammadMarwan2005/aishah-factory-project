@@ -46,7 +46,7 @@ public class FileManager {
                     objects.add(obj);
                     ois.close();
                 } catch (IOException | ClassNotFoundException e) {
-                    // Skip corrupted files
+                    ErrorLogger.logError(e);
                 }
             }
         }
@@ -81,7 +81,7 @@ public class FileManager {
                         maxId = id;
                     }
                 } catch (NumberFormatException e) {
-                    // Skip files with invalid ID format
+                    ErrorLogger.logError(e);
                 }
             }
         }

@@ -1,7 +1,7 @@
 package model.io;
 
 public enum ObjectType {
-    Item, Product, ProductLine, Task;
+    Item, Product, ProductLine, Task, User;
 
     public String getPath(int id) {
         return this.toString() + "_" + id + ".dat"; // Item_1.dat
