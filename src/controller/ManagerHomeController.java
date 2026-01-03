@@ -2,6 +2,8 @@ package controller;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ManagerHomeController extends JFrame {
 
@@ -37,15 +39,15 @@ public class ManagerHomeController extends JFrame {
         panel.setBackground(new Color(236, 240, 241));
 
         // Dashboard cards
-        panel.add(createCard("View Reports", "Generate and view production reports", new Color(52, 152, 219)));
-        panel.add(createCard("Manage Items", "Add, edit, or remove inventory items", new Color(46, 204, 113)));
-        panel.add(createCard("Production Overview", "Monitor production status", new Color(155, 89, 182)));
-        panel.add(createCard("Settings", "System configuration", new Color(241, 196, 15)));
+        panel.add(createCard("View Reports", "Generate and view production reports", new Color(52, 152, 219), null));
+        panel.add(createCard("Manage Items", "Add, edit, or remove inventory items", new Color(46, 204, 113), this::openItemController));
+        panel.add(createCard("Production Overview", "Monitor production status", new Color(155, 89, 182), null));
+        panel.add(createCard("Settings", "System configuration", new Color(241, 196, 15), null));
 
         return panel;
     }
 
-    private JPanel createCard(String title, String description, Color color) {
+    private JPanel createCard(String title, String description, Color color, Runnable onClick) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -68,7 +70,36 @@ public class ManagerHomeController extends JFrame {
 
         card.add(textPanel, BorderLayout.CENTER);
 
+        // Make card clickable if action is provided
+        if (onClick != null) {
+            card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            card.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    onClick.run();
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    card.setBackground(new Color(245, 245, 245));
+                    textPanel.setBackground(new Color(245, 245, 245));
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    card.setBackground(Color.WHITE);
+                    textPanel.setBackground(Color.WHITE);
+                }
+            });
+        }
+
         return card;
+    }
+
+    private void openItemController() {
+        ItemController itemController = new ItemController();
+        itemController.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        itemController.setVisible(true);
     }
 
     private JPanel createStatusPanel() {

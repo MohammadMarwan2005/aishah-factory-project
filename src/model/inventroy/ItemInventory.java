@@ -13,6 +13,10 @@ public class ItemInventory {
         FileManager.saveObjectToFile(item, ObjectType.Item, item.getId());
     }
 
+    public static void updateItem(Item item) throws IOException {
+        FileManager.saveObjectToFile(item, ObjectType.Item, item.getId());
+    }
+
     public static void deleteItem(int id) throws IOException {
         FileManager.deleteFile(ObjectType.Item, id);
     }

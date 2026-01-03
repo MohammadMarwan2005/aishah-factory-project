@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * Controller for the Item View (Swing version with JTable).
- * Displays items in a table with a delete button in each row.
+ * Displays items in a table with edit and delete buttons in each row.
  */
 public class ItemController extends JFrame {
 
@@ -29,6 +29,13 @@ public class ItemController extends JFrame {
     private JTextField quantityField;
     private JTextField minQuantityField;
     private JLabel statusLabel;
+    private JLabel formTitleLabel;
+    private JButton addButton;
+    private JButton updateButton;
+    private JButton cancelButton;
+
+    // ===== Edit Mode State =====
+    private Item editingItem = null;
 
     /**
      * Constructor - builds the entire UI.
@@ -36,7 +43,7 @@ public class ItemController extends JFrame {
     public ItemController() {
         setTitle("Factory Inventory System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 500);
+        setSize(900, 500);
         setLocationRelativeTo(null); // Center on screen
 
         // Main layout
@@ -75,7 +82,7 @@ public class ItemController extends JFrame {
         // Left: Items table
         panel.add(createTablePanel(), BorderLayout.CENTER);
 
-        // Right: Add form
+        // Right: Add/Edit form
         panel.add(createFormPanel(), BorderLayout.EAST);
 
         return panel;
@@ -99,17 +106,22 @@ public class ItemController extends JFrame {
         itemTable.setFont(new Font("Arial", Font.PLAIN, 14));
         itemTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
 
-        // Center align all columns
+        // Center align data columns
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        for (int i = 0; i < itemTable.getColumnCount() - 1; i++) {
+        for (int i = 0; i < 6; i++) {
             itemTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
+        // Set up the edit button column
+        itemTable.getColumnModel().getColumn(6).setCellRenderer(new EditButtonRenderer());
+        itemTable.getColumnModel().getColumn(6).setCellEditor(new EditButtonEditor());
+        itemTable.getColumnModel().getColumn(6).setPreferredWidth(60);
+
         // Set up the delete button column
-        itemTable.getColumnModel().getColumn(6).setCellRenderer(new DeleteButtonRenderer());
-        itemTable.getColumnModel().getColumn(6).setCellEditor(new DeleteButtonEditor());
-        itemTable.getColumnModel().getColumn(6).setPreferredWidth(80);
+        itemTable.getColumnModel().getColumn(7).setCellRenderer(new DeleteButtonRenderer());
+        itemTable.getColumnModel().getColumn(7).setCellEditor(new DeleteButtonEditor());
+        itemTable.getColumnModel().getColumn(7).setPreferredWidth(60);
 
         // Set column widths
         itemTable.getColumnModel().getColumn(0).setPreferredWidth(40);  // ID
@@ -126,7 +138,7 @@ public class ItemController extends JFrame {
     }
 
     /**
-     * Creates the right panel with the add item form.
+     * Creates the right panel with the add/edit item form.
      */
     private JPanel createFormPanel() {
         JPanel panel = new JPanel();
@@ -138,10 +150,10 @@ public class ItemController extends JFrame {
         panel.setPreferredSize(new Dimension(220, 0));
 
         // Title
-        JLabel title = new JLabel("Add New Item");
-        title.setFont(new Font("Arial", Font.BOLD, 16));
-        title.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(title);
+        formTitleLabel = new JLabel("Add New Item");
+        formTitleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        formTitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.add(formTitleLabel);
         panel.add(Box.createVerticalStrut(15));
 
         // Name field
@@ -180,12 +192,34 @@ public class ItemController extends JFrame {
         panel.add(Box.createVerticalStrut(15));
 
         // Add button
-        JButton addButton = new JButton("Add Item");
+        addButton = new JButton("Add Item");
         addButton.setBackground(new Color(39, 174, 96));
         addButton.setForeground(Color.WHITE);
         addButton.setAlignmentX(Component.LEFT_ALIGNMENT);
         addButton.addActionListener(e -> onAddItem());
         panel.add(addButton);
+
+        panel.add(Box.createVerticalStrut(8));
+
+        // Update button (hidden by default)
+        updateButton = new JButton("Update Item");
+        updateButton.setBackground(new Color(52, 152, 219));
+        updateButton.setForeground(Color.WHITE);
+        updateButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        updateButton.addActionListener(e -> onUpdateItem());
+        updateButton.setVisible(false);
+        panel.add(updateButton);
+
+        panel.add(Box.createVerticalStrut(8));
+
+        // Cancel button (hidden by default)
+        cancelButton = new JButton("Cancel");
+        cancelButton.setBackground(new Color(149, 165, 166));
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        cancelButton.addActionListener(e -> cancelEdit());
+        cancelButton.setVisible(false);
+        panel.add(cancelButton);
 
         return panel;
     }
@@ -219,6 +253,44 @@ public class ItemController extends JFrame {
     private void loadItems() {
         List<Item> items = ItemInventory.getAllItems();
         tableModel.setItems(items);
+    }
+
+    /**
+     * Switches to edit mode for the given item.
+     */
+    private void startEdit(int rowIndex) {
+        editingItem = tableModel.getItemAt(rowIndex);
+
+        // Populate form with item data
+        nameField.setText(editingItem.getName());
+        categoryComboBox.setSelectedItem(editingItem.getCategory());
+        priceField.setText(String.valueOf(editingItem.getPrice()));
+        quantityField.setText(String.valueOf(editingItem.getQuantity()));
+        minQuantityField.setText(String.valueOf(editingItem.getMinQuantity()));
+
+        // Update UI for edit mode
+        formTitleLabel.setText("Edit Item (ID: " + editingItem.getId() + ")");
+        addButton.setVisible(false);
+        updateButton.setVisible(true);
+        cancelButton.setVisible(true);
+
+        statusLabel.setText("Editing item: " + editingItem.getName());
+    }
+
+    /**
+     * Cancels edit mode and returns to add mode.
+     */
+    private void cancelEdit() {
+        editingItem = null;
+        clearFields();
+
+        // Update UI for add mode
+        formTitleLabel.setText("Add New Item");
+        addButton.setVisible(true);
+        updateButton.setVisible(false);
+        cancelButton.setVisible(false);
+
+        statusLabel.setText("Edit cancelled");
     }
 
     /**
@@ -263,10 +335,58 @@ public class ItemController extends JFrame {
     }
 
     /**
+     * Handles the "Update Item" button click.
+     */
+    private void onUpdateItem() {
+        if (editingItem == null) return;
+
+        try {
+            // Get values from fields
+            String name = nameField.getText().trim();
+            Category category = (Category) categoryComboBox.getSelectedItem();
+            double price = Double.parseDouble(priceField.getText().trim());
+            int quantity = Integer.parseInt(quantityField.getText().trim());
+            int minQuantity = Integer.parseInt(minQuantityField.getText().trim());
+
+            // Validate
+            if (name.isEmpty()) {
+                statusLabel.setText("Error: Name cannot be empty");
+                return;
+            }
+
+            // Create updated item with same ID
+            Item updatedItem = new Item(editingItem.getId(), name, category, price, quantity, minQuantity);
+
+            // Save to file (overwrites existing)
+            ItemInventory.updateItem(updatedItem);
+
+            // Update in table
+            tableModel.updateItem(editingItem, updatedItem);
+
+            // Exit edit mode
+            cancelEdit();
+
+            statusLabel.setText("Item updated: " + updatedItem.getName() + " (ID: " + updatedItem.getId() + ")");
+
+        } catch (NumberFormatException e) {
+            ErrorLogger.logError(e);
+            statusLabel.setText("Error: Please enter valid numbers");
+        } catch (IOException e) {
+            ErrorLogger.logError(e);
+            statusLabel.setText("Error updating item: " + e.getMessage());
+        }
+    }
+
+    /**
      * Deletes an item by row index.
      */
     private void deleteItem(int rowIndex) {
         Item item = tableModel.getItemAt(rowIndex);
+
+        // If we're editing this item, cancel edit first
+        if (editingItem != null && editingItem.getId() == item.getId()) {
+            cancelEdit();
+        }
 
         try {
             // Delete from file
@@ -291,13 +411,14 @@ public class ItemController extends JFrame {
         priceField.setText("");
         quantityField.setText("");
         minQuantityField.setText("");
+        categoryComboBox.setSelectedIndex(0);
     }
 
     // =========================================================================
     // INNER CLASS: Table Model for Items
     // =========================================================================
     private class ItemTableModel extends AbstractTableModel {
-        private final String[] columns = {"ID", "Name", "Category", "Price", "Qty", "Min Qty", "Delete"};
+        private final String[] columns = {"ID", "Name", "Category", "Price", "Qty", "Min Qty", "Edit", "Delete"};
         private List<Item> items = new ArrayList<>();
 
         public void setItems(List<Item> items) {
@@ -313,6 +434,14 @@ public class ItemController extends JFrame {
         public void removeItem(int rowIndex) {
             items.remove(rowIndex);
             fireTableRowsDeleted(rowIndex, rowIndex);
+        }
+
+        public void updateItem(Item oldItem, Item newItem) {
+            int index = items.indexOf(oldItem);
+            if (index >= 0) {
+                items.set(index, newItem);
+                fireTableRowsUpdated(index, index);
+            }
         }
 
         public Item getItemAt(int rowIndex) {
@@ -344,14 +473,69 @@ public class ItemController extends JFrame {
                 case 3: return item.getPrice();
                 case 4: return item.getQuantity();
                 case 5: return item.getMinQuantity();
-                case 6: return "🗑"; // Delete icon
+                case 6: return "✏"; // Edit icon
+                case 7: return "🗑"; // Delete icon
                 default: return null;
             }
         }
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return columnIndex == 6; // Only delete column is "editable" (clickable)
+            return columnIndex == 6 || columnIndex == 7; // Edit and Delete columns are clickable
+        }
+    }
+
+    // =========================================================================
+    // INNER CLASS: Renderer for Edit Button
+    // =========================================================================
+    private class EditButtonRenderer extends JButton implements TableCellRenderer {
+        public EditButtonRenderer() {
+            setText("✏");
+            setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+            setBackground(new Color(52, 152, 219));
+            setForeground(Color.WHITE);
+            setFocusPainted(false);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
+        }
+    }
+
+    // =========================================================================
+    // INNER CLASS: Editor for Edit Button (handles click)
+    // =========================================================================
+    private class EditButtonEditor extends DefaultCellEditor {
+        private final JButton button;
+        private int currentRow;
+
+        public EditButtonEditor() {
+            super(new JCheckBox()); // Required by DefaultCellEditor
+
+            button = new JButton("✏");
+            button.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+            button.setBackground(new Color(52, 152, 219));
+            button.setForeground(Color.WHITE);
+            button.setFocusPainted(false);
+
+            button.addActionListener(e -> {
+                fireEditingStopped();
+                startEdit(currentRow);
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            currentRow = row;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return "✏";
         }
     }
 
